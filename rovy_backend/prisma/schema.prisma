@@ -1,0 +1,187 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model User {
+  id                  String   @id // Supabase Auth ID
+  email               String   @unique
+  username            String?  @unique
+  name                String?
+  age                 Int?
+  gender              String?
+  vehicleType         String?
+  buildStatus         String?
+  avatarUrl           String?
+  rigPhotoUrl         String?
+  bio                 String?
+  onboardingCompleted Boolean  @default(false)
+  lastLatitude        Float?
+  lastLongitude       Float?
+  lastLocationAt      DateTime?
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  inviteCode          InviteCode?
+  builds              Build[]
+  garagePro           GaragePro?
+  coPilotProfile      CoPilotProfile?
+  eventsHosted        Event[]
+
+  swipesGiven     Swipe[]   @relation("SwipesGiven")
+  swipesReceived  Swipe[]   @relation("SwipesReceived")
+  messagesSent    Message[] @relation("MessagesSent")
+  messagesReceived Message[] @relation("MessagesReceived")
+  pinnedEvents    PinnedEvent[]
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  location    String
+  latitude    Float
+  longitude   Float
+  startDate   DateTime
+  endDate     DateTime?
+  imageUrl    String?
+  category    String?
+
+  hostUserId  String?
+  host        User?    @relation(fields: [hostUserId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  pins        PinnedEvent[]
+}
+
+model PinnedEvent {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, eventId])
+}
+
+model Swipe {
+  id        String   @id @default(uuid())
+  swiperId  String
+  targetId  String
+  action    String   // LIKE, PASS
+  createdAt DateTime @default(now())
+
+  swiper    User     @relation("SwipesGiven", fields: [swiperId], references: [id])
+  target    User     @relation("SwipesReceived", fields: [targetId], references: [id])
+
+  @@unique([swiperId, targetId])
+}
+
+model Message {
+  id          String   @id @default(uuid())
+  senderId    String
+  receiverId  String
+  content     String
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  sender      User     @relation("MessagesSent", fields: [senderId], references: [id])
+  receiver    User     @relation("MessagesReceived", fields: [receiverId], references: [id])
+}
+
+model CoPilotProfile {
+  id                String   @id @default(uuid())
+  
+  isActive          Boolean  @default(false)
+  
+  // Identity & Preferences
+  identity          String   // Male, Female, Non-Binary
+  seeking           String   // Men, Women, Everyone
+  relationshipStyle String   // Monogamous, ENM, Open, Short-term
+  seatBeltRule      Boolean  @default(false)
+  
+  // Content
+  tagline           String?
+  photos            String[]
+  rigPhotos         String[]
+  
+  // Deep Dive
+  prompts           Json?    // Array of { question, answer }
+  
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id])
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model InviteCode {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  isUsed    Boolean  @default(false)
+  usedBy    String?  @unique // User ID who used it
+  user      User?    @relation(fields: [usedBy], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Build {
+  id          String   @id @default(uuid())
+  name        String
+  model       String
+  imageUrl    String
+  description String?
+  tags        String[]
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model RoadNews {
+  id          String   @id @default(uuid())
+  type        String   // alert, info, traffic
+  title       String
+  description String
+  timestamp   DateTime @default(now())
+  latitude    Float?
+  longitude   Float?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model GaragePro {
+  id          String   @id @default(uuid())
+  name        String
+  title       String   // Frontend: type
+  specialty   String   // Frontend: sub
+  rate        String
+  latitude    Float?
+  longitude   Float?
+  verified    Boolean  @default(false)
+  category    String   // SOLAR, CARPENTRY, etc.
+  category    String   // SOLAR, CARPENTRY, etc.
+  imageUrl    String?
+  
+  phoneNumber String?
+  email       String?
+  website     String?
+  location    String?
+
+  userId      String?  @unique // Optional for now to support legacy data, but should be required ideally
+  user        User?    @relation(fields: [userId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

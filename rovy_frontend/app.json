@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "Rovy",
+    "slug": "rovy",
+    "scheme": "rovy",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "jsEngine": "hermes",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rovy.app"
+    },
+    "android": {
+      "package": "com.rovy.app"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Rovy to access your photos to upload your profile picture and rig shots.",
+          "cameraPermission": "Allow Rovy to access your camera to take your profile picture and rig shots."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Rovy to use your location to show nearby events and people on the map.",
+          "locationAlwaysPermission": "Allow Rovy to use your location to show nearby events and people on the map.",
+          "locationWhenInUsePermission": "Allow Rovy to use your location to show nearby events and people on the map."
+        }
+      ]
+    ]
+  }
+}
